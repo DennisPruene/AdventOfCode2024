@@ -1,18 +1,23 @@
+#![feature(ascii_char, trait_alias)]
 #![allow(dead_code)]
 
-use day3::solve_day3;
+extern crate core;
+extern crate regex;
+
+use day4::solve_day4;
 use parsing::parse_integers;
 use std::error::Error;
 use std::path::Path;
 
 mod day2;
 mod day3;
+mod day4;
 mod parsing;
 
 pub type DynResult<T> = Result<T, Box<dyn Error>>;
 
 fn main() -> DynResult<()> {
-    solve_day3("input/day3/input.txt")?;
+    solve_day4("input/day4/input.txt")?;
     Ok(())
 }
 
