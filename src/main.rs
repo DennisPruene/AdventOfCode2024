@@ -8,6 +8,8 @@ use day4::solve_day4;
 use parsing::parse_integers;
 use std::error::Error;
 use std::path::Path;
+use day2::solve_day2;
+use day3::solve_day3;
 
 mod day2;
 mod day3;
@@ -17,6 +19,9 @@ mod parsing;
 pub type DynResult<T> = Result<T, Box<dyn Error>>;
 
 fn main() -> DynResult<()> {
+    solve_day1("input/day1/input.txt")?;
+    solve_day2("input/day2/input.txt")?;
+    solve_day3("input/day3/input.txt")?;
     solve_day4("input/day4/input.txt")?;
     Ok(())
 }

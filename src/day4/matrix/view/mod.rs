@@ -11,15 +11,11 @@ pub struct Range<Idx> {
 impl<Idx> Range<Idx>
 where
     Idx: Mul + Copy,
-    <Idx as Mul>::Output: Ord
+    <Idx as Mul>::Output: Ord,
 {
     pub fn new(start: Idx, end: Idx, step: Idx) -> Self {
         assert!(start * step <= end * step);
-        Self {
-            start,
-            end,
-            step
-        }
+        Self { start, end, step }
     }
 }
 
@@ -32,7 +28,7 @@ pub struct MatrixView<'a, M, T> {
 
 impl<'a, M, T> MatrixView<'a, M, T>
 where
-    M: Matrix<'a, T>
+    M: Matrix<'a, T>,
 {
     pub fn new(matrix: &'a M, x_range: Range<isize>, y_range: Range<isize>) -> Self {
         assert!(x_range.start >= 0);
@@ -47,7 +43,7 @@ where
             matrix,
             x_range,
             y_range,
-            phantom_t: PhantomData::default()
+            phantom_t: PhantomData::default(),
         }
     }
 }

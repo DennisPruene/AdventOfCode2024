@@ -18,6 +18,15 @@ impl<T> MatrixBase<T> {
     }
 }
 
+impl<'a, T> IntoIterator for &'a MatrixBase<T> {
+    type Item = &'a T;
+    type IntoIter = std::slice::Iter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.inner.iter()
+    }
+}
+
 impl<'a, T> Matrix<'a, T> for MatrixBase<T> {
     fn row_count(&self) -> usize {
         self.rows

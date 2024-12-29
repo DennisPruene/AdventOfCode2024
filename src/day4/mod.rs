@@ -1,11 +1,11 @@
-use self::matrix::base::MatrixBase;
 use self::matrix::Matrix;
+use self::matrix::base::MatrixBase;
 use crate::DynResult;
 use crate::parsing::read_file_to_string;
+use regex::Regex;
 use std::ascii::Char;
 use std::convert::TryInto;
 use std::path::Path;
-use regex::Regex;
 
 mod matrix;
 
@@ -24,5 +24,16 @@ pub fn solve_day4<P: AsRef<Path>>(path: P) -> DynResult<()> {
         first_result += xmas_matcher.find_iter(line.as_str()).count();
     }
     println!("The first result is: {first_result}");
+
+    println!("Solving Day 4 Part 2 on the same input");
+    let second_result = input
+        .convolve(3, 3, |m| {
+            let down_diagonal: String = m.down_diagonal(0).unwrap().map(|c| c.as_str()).collect();
+            let up_diagonal: String = m.up_diagonal(0).unwrap().map(|c| c.as_str()).collect();
+            (down_diagonal == "MAS" || down_diagonal == "SAM")
+                && (up_diagonal == "MAS" || up_diagonal == "SAM")
+        })
+        .count_non_zero();
+    println!("The second result is: {second_result}");
     Ok(())
 }
