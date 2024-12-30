@@ -7,31 +7,32 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 pub mod base;
+pub mod bool;
 mod iter;
 mod view;
 
-pub trait Matrix<'a, T>: Sized {
+pub trait Matrix<T>: Sized {
     fn row_count(&self) -> usize;
 
     fn column_count(&self) -> usize;
 
-    fn get(&'a self, x: usize, y: usize) -> Option<&'a T>;
+    fn get(&self, x: usize, y: usize) -> Option<T>;
 
     fn size(&self) -> usize {
         self.row_count() * self.column_count()
     }
 
-    fn iter(&'a self) -> FullWalk<'a, Self, T> {
+    fn iter(&self) -> FullWalk<Self, T> {
         FullWalk::new(self, AllIndices::new(self.column_count()))
     }
 
     fn view(
-        &'a self,
+        &self,
         x_start: isize,
         x_end: isize,
         y_start: isize,
         y_end: isize,
-    ) -> Option<MatrixView<'a, Self, T>> {
+    ) -> Option<MatrixView<Self, T>> {
         if x_start < 0
             || x_end > self.column_count() as isize
             || y_start < 0
@@ -47,24 +48,24 @@ pub trait Matrix<'a, T>: Sized {
         }
     }
 
-    fn walk<IT>(&'a self, indices: IT) -> Walk<'a, Self, T, IT> {
+    fn walk<IT>(&self, indices: IT) -> Walk<Self, T, IT> {
         Walk::new(self, indices)
     }
 
     fn arithmetic_walk(
-        &'a self,
+        & self,
         cur_x: usize,
         cur_y: usize,
         step_x: i32,
         step_y: i32,
-    ) -> ArithmeticWalk<'a, Self, T> {
+    ) -> ArithmeticWalk<Self, T> {
         Walk::new(
             self,
             ArithmeticIndices::new(cur_x as i32, cur_y as i32, step_x, step_y),
         )
     }
 
-    fn row(&'a self, row_index: usize) -> Option<ArithmeticWalk<'a, Self, T>> {
+    fn row(&self, row_index: usize) -> Option<ArithmeticWalk<Self, T>> {
         if row_index >= self.row_count() {
             None
         } else {
@@ -72,11 +73,11 @@ pub trait Matrix<'a, T>: Sized {
         }
     }
 
-    fn rows(&'a self) -> Rows<'a, Self, T> {
+    fn rows(&self) -> Rows<Self, T> {
         Rows::new(self)
     }
 
-    fn column(&'a self, column_index: usize) -> Option<ArithmeticWalk<'a, Self, T>> {
+    fn column(&self, column_index: usize) -> Option<ArithmeticWalk<Self, T>> {
         if column_index >= self.column_count() {
             None
         } else {
@@ -84,11 +85,11 @@ pub trait Matrix<'a, T>: Sized {
         }
     }
 
-    fn columns(&'a self) -> Columns<'a, Self, T> {
+    fn columns(&self) -> Columns<Self, T> {
         Columns::new(self)
     }
 
-    fn down_diagonal(&'a self, diagonal_index: i32) -> Option<ArithmeticWalk<'a, Self, T>> {
+    fn down_diagonal(&self, diagonal_index: i32) -> Option<ArithmeticWalk<Self, T>> {
         if diagonal_index <= -(self.row_count() as i32)
             || diagonal_index >= self.column_count() as i32
         {
@@ -100,11 +101,11 @@ pub trait Matrix<'a, T>: Sized {
         }
     }
 
-    fn down_diagonals(&'a self) -> DownDiagonals<'a, Self, T> {
+    fn down_diagonals(&self) -> DownDiagonals<Self, T> {
         DownDiagonals::new(self)
     }
 
-    fn up_diagonal(&'a self, diagonal_index: i32) -> Option<ArithmeticWalk<'a, Self, T>> {
+    fn up_diagonal(&self, diagonal_index: i32) -> Option<ArithmeticWalk<Self, T>> {
         if diagonal_index <= -(self.row_count() as i32)
             || diagonal_index >= self.column_count() as i32
         {
@@ -121,11 +122,11 @@ pub trait Matrix<'a, T>: Sized {
         }
     }
 
-    fn up_diagonals(&'a self) -> UpDiagonals<'a, Self, T> {
+    fn up_diagonals(&self) -> UpDiagonals<Self, T> {
         UpDiagonals::new(self)
     }
 
-    fn word_search(&'a self) -> WordSearch<'a, Self, T> {
+    fn word_search(&self) -> WordSearch<Self, T> {
         self.rows()
             .chain(self.columns())
             .chain(self.down_diagonals())
@@ -133,14 +134,14 @@ pub trait Matrix<'a, T>: Sized {
     }
 
     fn convolve_iter(
-        &'a self,
+        &self,
         convolve_width: usize,
         convolve_height: usize,
-    ) -> ConvolveIter<'a, Self, T> {
+    ) -> ConvolveIter<Self, T> {
         ConvolveIter::new(self, convolve_width, convolve_height)
     }
 
-    fn convolve<F, U>(&'a self, width: usize, height: usize, convolve: F) -> MatrixBase<U>
+    fn convolve<F, U>(&self, width: usize, height: usize, convolve: F) -> MatrixBase<U>
     where
         F: Fn(MatrixView<Self, T>) -> U,
     {
@@ -153,12 +154,16 @@ pub trait Matrix<'a, T>: Sized {
         MatrixBase::new(new_row_count, new_column_count, result)
     }
 
-    fn count_non_zero(&'a self) -> usize
+    fn count_non_zero(&self) -> usize
     where
-        T: 'a + Default + Eq,
+        T: Default + Eq,
     {
-        self.iter().filter(|t| t != &&T::default()).count()
+        self.iter().filter(|t| t != &T::default()).count()
     }
+}
+
+pub trait MutMatrix<T>: Matrix<T> {
+    fn set(&mut self, x: usize, y: usize, value: T);
 }
 
 #[derive(Debug)]

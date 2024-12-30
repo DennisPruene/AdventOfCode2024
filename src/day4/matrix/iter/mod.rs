@@ -23,12 +23,12 @@ impl<'a, M, T, IT> Walk<'a, M, T, IT> {
     }
 }
 
-impl<'a, M, T: 'a, IT> Iterator for Walk<'a, M, T, IT>
+impl<'a, M, T, IT> Iterator for Walk<'a, M, T, IT>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
     IT: Iterator<Item = (usize, usize)>,
 {
-    type Item = &'a T;
+    type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
         let index = self.indices.next();
@@ -120,7 +120,7 @@ impl<'a, M, T> Rows<'a, M, T> {
 
 impl<'a, M, T> Iterator for Rows<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     type Item = ArithmeticWalk<'a, M, T>;
 
@@ -149,7 +149,7 @@ impl<'a, M, T> Columns<'a, M, T> {
 
 impl<'a, M, T> Iterator for Columns<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     type Item = ArithmeticWalk<'a, M, T>;
 
@@ -168,7 +168,7 @@ pub struct DownDiagonals<'a, M, T> {
 
 impl<'a, M, T> DownDiagonals<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     pub fn new(matrix: &'a M) -> Self {
         Self {
@@ -181,7 +181,7 @@ where
 
 impl<'a, M, T> Iterator for DownDiagonals<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     type Item = ArithmeticWalk<'a, M, T>;
 
@@ -200,7 +200,7 @@ pub struct UpDiagonals<'a, M, T> {
 
 impl<'a, M, T> UpDiagonals<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     pub fn new(matrix: &'a M) -> Self {
         Self {
@@ -213,7 +213,7 @@ where
 
 impl<'a, M, T> Iterator for UpDiagonals<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     type Item = ArithmeticWalk<'a, M, T>;
 
@@ -240,7 +240,7 @@ pub struct ConvolveIter<'a, M, T> {
 
 impl<'a, M, T> ConvolveIter<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     pub fn new(matrix: &'a M, convolve_width: usize, convolve_height: usize) -> Self {
         assert!(convolve_width <= matrix.column_count());
@@ -258,7 +258,7 @@ where
 
 impl<'a, M, T> Iterator for ConvolveIter<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     type Item = MatrixView<'a, M, T>;
 

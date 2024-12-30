@@ -28,7 +28,7 @@ pub struct MatrixView<'a, M, T> {
 
 impl<'a, M, T> MatrixView<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     pub fn new(matrix: &'a M, x_range: Range<isize>, y_range: Range<isize>) -> Self {
         assert!(x_range.start >= 0);
@@ -48,9 +48,9 @@ where
     }
 }
 
-impl<'a, M, T> Matrix<'a, T> for MatrixView<'a, M, T>
+impl<'a, M, T> Matrix<T> for MatrixView<'a, M, T>
 where
-    M: Matrix<'a, T>,
+    M: Matrix<T>,
 {
     fn row_count(&self) -> usize {
         ((self.y_range.end - self.y_range.start) / self.y_range.step) as usize
@@ -60,7 +60,7 @@ where
         ((self.x_range.end - self.x_range.start) / self.x_range.step) as usize
     }
 
-    fn get(&'a self, x: usize, y: usize) -> Option<&'a T> {
+    fn get(&self, x: usize, y: usize) -> Option<T> {
         if y >= self.row_count() || x >= self.column_count() {
             None
         } else {

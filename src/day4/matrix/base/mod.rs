@@ -27,7 +27,7 @@ impl<'a, T> IntoIterator for &'a MatrixBase<T> {
     }
 }
 
-impl<'a, T> Matrix<'a, T> for MatrixBase<T> {
+impl<T: Clone> Matrix<T> for MatrixBase<T> {
     fn row_count(&self) -> usize {
         self.rows
     }
@@ -36,11 +36,19 @@ impl<'a, T> Matrix<'a, T> for MatrixBase<T> {
         self.columns
     }
 
-    fn get(&'a self, x: usize, y: usize) -> Option<&'a T> {
+    fn get(&self, x: usize, y: usize) -> Option<T> {
         if x >= self.rows || y >= self.columns {
             None
         } else {
-            self.inner.get(y * self.columns + x)
+            self.inner.get(y * self.columns + x).cloned()
+        }
+    }
+}
+
+impl<T: Clone> MutMatrix<T> for MatrixBase<T> {
+    fn set(&mut self, x: usize, y: usize, value: T) {
+        if let Some(destination) = self.inner.get_mut(y * self.columns + x) {
+            *destination = value;
         }
     }
 }
