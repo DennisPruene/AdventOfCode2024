@@ -3,6 +3,8 @@ use super::view::MatrixView;
 use std::iter::Chain;
 use std::marker::PhantomData;
 
+pub mod indexed;
+
 pub type FullWalk<'a, M, T> = Walk<'a, M, T, AllIndices>;
 
 pub type ArithmeticWalk<'a, M, T> = Walk<'a, M, T, ArithmeticIndices>;

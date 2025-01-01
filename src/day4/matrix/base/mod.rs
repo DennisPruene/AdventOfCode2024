@@ -77,3 +77,15 @@ impl TryFrom<String> for MatrixBase<Char> {
         Ok(MatrixBase::new(rows.unwrap(), columns, chars))
     }
 }
+
+impl<T: Clone + Display> Display for MatrixBase<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        for y in 0..self.rows {
+            for x in 0..self.columns {
+                write!(f, "{}", self.get(x, y).unwrap())?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}

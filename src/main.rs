@@ -3,19 +3,22 @@
 
 extern crate core;
 extern crate regex;
+extern crate once_cell;
 
+use day2::solve_day2;
+use day3::solve_day3;
 use day4::solve_day4;
+use day5::solve_day5;
+use day6::solve_day6;
 use parsing::parse_integers;
 use std::error::Error;
 use std::path::Path;
-use day2::solve_day2;
-use day3::solve_day3;
-use day5::solve_day5;
 
 mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 mod parsing;
 
 pub type DynResult<T> = Result<T, Box<dyn Error>>;
@@ -26,6 +29,7 @@ fn main() -> DynResult<()> {
     solve_day3("input/day3/input.txt")?;
     solve_day4("input/day4/input.txt")?;
     solve_day5("input/day5/input.txt")?;
+    solve_day6("input/day6/input.txt")?;
     Ok(())
 }
 

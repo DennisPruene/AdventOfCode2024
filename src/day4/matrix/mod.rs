@@ -5,6 +5,7 @@ use std::ascii::Char;
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use self::iter::indexed::IndexedFullWalk;
 
 pub mod base;
 pub mod bool;
@@ -24,6 +25,10 @@ pub trait Matrix<T>: Sized {
 
     fn iter(&self) -> FullWalk<Self, T> {
         FullWalk::new(self, AllIndices::new(self.column_count()))
+    }
+
+    fn indexed_iter(&self) -> IndexedFullWalk<Self, T> {
+        IndexedFullWalk::new(self, AllIndices::new(self.column_count()))
     }
 
     fn view(
@@ -53,7 +58,7 @@ pub trait Matrix<T>: Sized {
     }
 
     fn arithmetic_walk(
-        & self,
+        &self,
         cur_x: usize,
         cur_y: usize,
         step_x: i32,
@@ -154,11 +159,15 @@ pub trait Matrix<T>: Sized {
         MatrixBase::new(new_row_count, new_column_count, result)
     }
 
+    fn count_where<P: Fn(&T) -> bool>(&self, predicate: P) -> usize {
+        self.iter().filter(predicate).count()
+    }
+
     fn count_non_zero(&self) -> usize
     where
         T: Default + Eq,
     {
-        self.iter().filter(|t| t != &T::default()).count()
+        self.count_where(|t| t != &T::default())
     }
 }
 

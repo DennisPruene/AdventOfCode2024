@@ -1,10 +1,10 @@
-use std::fmt::{Display, Formatter};
 use super::{Matrix, MutMatrix};
+use std::fmt::{Display, Formatter};
 
 pub struct BoolMatrix {
     rows: usize,
     columns: usize,
-    inner: Vec<u8>
+    inner: Vec<u8>,
 }
 
 impl BoolMatrix {
@@ -12,7 +12,7 @@ impl BoolMatrix {
         Self {
             rows,
             columns,
-            inner: vec![0; (rows * columns).div_ceil(8)]
+            inner: vec![0; (rows * columns).div_ceil(8)],
         }
     }
 
