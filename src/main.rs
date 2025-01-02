@@ -4,6 +4,7 @@
 extern crate core;
 extern crate regex;
 extern crate once_cell;
+extern crate ndarray;
 
 use day2::solve_day2;
 use day3::solve_day3;
