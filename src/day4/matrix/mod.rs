@@ -9,6 +9,7 @@ use self::iter::indexed::IndexedFullWalk;
 
 pub mod base;
 pub mod bool;
+pub mod sparse;
 mod iter;
 mod view;
 

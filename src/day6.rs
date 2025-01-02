@@ -1,5 +1,4 @@
-use crate::day4::matrix::base::MatrixBase;
-use crate::day4::matrix::{Matrix, MutMatrix};
+use crate::day4::matrix::{Matrix, MutMatrix, base::MatrixBase, sparse::SparseMatrix};
 use crate::parsing::read_file_to_string;
 use crate::DynResult;
 use once_cell::sync::Lazy;
@@ -33,7 +32,10 @@ pub fn solve_day6<P: AsRef<Path>>(path: P) -> DynResult<()> {
         path.as_ref().to_str().unwrap()
     );
 
-    let mut map: MatrixBase<Char> = read_file_to_string(path)?.try_into()?;
+    let map: MatrixBase<Char> = read_file_to_string(path)?.try_into()?;
+    let mut map = SparseMatrix::from_matrix(map, '.'.as_ascii().unwrap());
+    println!("{map:#?}");
+    println!("{map}");
     let (mut patrol_x, mut patrol_y) = map
         .indexed_iter()
         .filter(|(_, c)| vec!["^", "<", "v", ">"].contains(&c.as_str()))
@@ -55,7 +57,7 @@ pub fn solve_day6<P: AsRef<Path>>(path: P) -> DynResult<()> {
 }
 
 fn take_step(
-    map: &mut MatrixBase<Char>,
+    map: &mut SparseMatrix<Char>,
     patrol_x: usize,
     patrol_y: usize,
 ) -> Option<(usize, usize)> {
