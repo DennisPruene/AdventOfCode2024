@@ -1,6 +1,5 @@
 use std::ascii::Char;
-use std::collections::HashMap;
-use ndarray::Ix;
+use std::collections::{HashMap, HashSet};
 use once_cell::sync::Lazy;
 use ndarray::prelude::*;
 
@@ -24,7 +23,7 @@ pub struct PatrolTracker {
     map: Array2<Char>,
     patrol_position: Array1<isize>,
     patrol_direction: Array1<isize>,
-    up_positions: Vec<Array1<isize>>,
+    up_positions: HashMap<usize, HashSet<usize>>,
 }
 
 impl PatrolTracker {
@@ -40,7 +39,7 @@ impl PatrolTracker {
             map,
             patrol_position,
             patrol_direction,
-            up_positions: vec![]
+            up_positions: HashMap::new()
         }
     }
 
@@ -52,31 +51,78 @@ impl PatrolTracker {
         (self.patrol_position[0] as usize, self.patrol_position[1] as usize)
     }
 
-    pub fn take_step(&mut self, mark_path: bool) -> StepResult {
-        let next_position = &self.patrol_position + &self.patrol_direction;
-        match self.map.get((next_position[0] as Ix, next_position[1] as Ix)) {
-            Some(c) =>  {
-                if c.as_str() == "#" {
-                    self.patrol_direction = RIGHT_TURN_MATRIX.dot(&self.patrol_direction);
-                    if self.patrol_direction[1] == -1 {
-                        if self.up_positions.contains(&self.patrol_position) {
-                            return StepResult::LoopDetected;
-                        }
-                        self.up_positions.push(self.patrol_position.clone());
-                    }
-                } else {
-                    if mark_path {
-                        self.map[(self.patrol_position[0] as Ix, self.patrol_position[1] as Ix)] = 'X'.as_ascii().unwrap();
-                    }
-                    self.patrol_position = next_position;
-                }
-                StepResult::KeepGoing
+    fn is_position_in_up_positions(&self, pos: &Array1<isize>) -> bool {
+        if self.up_positions.contains_key(&(pos[0] as usize)) {
+            self.up_positions.get(&(pos[0] as usize)).unwrap().contains(&(pos[1] as usize))
+        } else {
+            false
+        }
+    }
+
+    fn add_position_to_up_positions(&mut self, pos: &Array1<isize>) {
+        self.up_positions.entry(pos[0] as usize).or_default().insert(pos[1] as usize);
+    }
+
+    fn get_ray(&self) -> ArrayView<Char, Ix1> {
+        match (self.patrol_direction[0], self.patrol_direction[1]) {
+            (0, 1) => {
+                self.map.slice(s![self.patrol_position[0], self.patrol_position[1]+1..])
             },
+            (0, -1) => {
+                self.map.slice(s![self.patrol_position[0], ..self.patrol_position[1];-1])
+            }
+            (1, 0) => {
+                self.map.slice(s![self.patrol_position[0]+1.., self.patrol_position[1]])
+            },
+            (-1, 0) => {
+                self.map.slice(s![..self.patrol_position[0];-1, self.patrol_position[1]])
+            }
+            _ => unreachable!()
+        }
+    }
+
+    fn get_ray_mut(&mut self) -> ArrayViewMut<Char, Ix1> {
+        match (self.patrol_direction[0], self.patrol_direction[1]) {
+            (0, 1) => {
+                self.map.slice_mut(s![self.patrol_position[0], self.patrol_position[1]..])
+            },
+            (0, -1) => {
+                self.map.slice_mut(s![self.patrol_position[0], ..=self.patrol_position[1];-1])
+            }
+            (1, 0) => {
+                self.map.slice_mut(s![self.patrol_position[0].., self.patrol_position[1]])
+            },
+            (-1, 0) => {
+                self.map.slice_mut(s![..=self.patrol_position[0];-1, self.patrol_position[1]])
+            }
+            _ => unreachable!()
+        }
+    }
+
+    pub fn take_step(&mut self, mark_path: bool) -> StepResult {
+        let step_size = self.get_ray().iter().position(|c| *c == '#'.as_ascii().unwrap());
+        match step_size {
             None => {
                 if mark_path {
-                    self.map[(self.patrol_position[0] as Ix, self.patrol_position[1] as Ix)] = 'X'.as_ascii().unwrap();
+                    self.get_ray_mut().fill('X'.as_ascii().unwrap());
                 }
                 StepResult::OutOfBounds
+            },
+            Some(step_size) => {
+                if mark_path {
+                    self.get_ray_mut().slice_mut(s![..=step_size]).fill('X'.as_ascii().unwrap());
+                }
+
+                self.patrol_position[0] += ((step_size as isize) * &self.patrol_direction)[0];
+                self.patrol_position[1] += ((step_size as isize) * &self.patrol_direction)[1];
+                self.patrol_direction = RIGHT_TURN_MATRIX.dot(&self.patrol_direction);
+                if self.patrol_direction[0] == -1 {
+                    if self.is_position_in_up_positions(&self.patrol_position) {
+                        return StepResult::LoopDetected;
+                    }
+                    self.add_position_to_up_positions(&self.patrol_position.clone());
+                }
+                StepResult::KeepGoing
             }
         }
     }

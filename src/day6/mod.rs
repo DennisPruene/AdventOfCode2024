@@ -30,7 +30,7 @@ pub fn solve_day6<P: AsRef<Path>>(path: P) -> DynResult<()> {
     while patrol_tracker.take_step(true) == StepResult::KeepGoing {}
     println!("The solution to part 1 is: {}", patrol_tracker.get_map().iter().filter(|c| **c == 'X'.as_ascii().unwrap()).count());
 
-    let mut loop_tracker = PatrolTracker::new(map);
+    let loop_tracker = PatrolTracker::new(map);
     let (start_x, start_y) = loop_tracker.get_patrol_position();
     let possible_obstacle_positions: Vec<_> = patrol_tracker.get_map()
         .indexed_iter()
@@ -44,7 +44,6 @@ pub fn solve_day6<P: AsRef<Path>>(path: P) -> DynResult<()> {
             second_result += 1;
         }
     }
-    println!("{loop_tracker:#?}");
     println!("The solution to part 2 is: {second_result}");
     Ok(())
 }
